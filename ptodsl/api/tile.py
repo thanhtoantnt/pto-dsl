@@ -108,6 +108,18 @@ def row_expand(src, dst):
     _pto.TRowExpandOp(src=src, dst=dst)
 
 
+def row_expand_sub(src0, src1, dst):
+    _pto.TRowExpandSubOp(src0=src0, src1=src1, dst=dst)
+
+
+def row_expand_div(src0, src1, dst):
+    _pto.TRowExpandDivOp(src0=src0, src1=src1, dst=dst)
+
+
+def row_expand_mul(src0, src1, dst):
+    _pto.TRowExpandMulOp(src0=src0, src1=src1, dst=dst)
+
+
 def col_sum(src, tmp, dst, is_binary=True):
     _pto.TColSumOp(src=src,  dst=dst, tmp=tmp, isBinary=BoolAttr.get(is_binary))
 
@@ -161,6 +173,9 @@ __all__ = [
     "row_max",
     "row_prod",
     "row_expand",
+    "row_expand_sub",
+    "row_expand_div",
+    "row_expand_mul",
     "col_sum",
     "col_min",
     "col_max",
