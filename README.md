@@ -16,7 +16,7 @@ PTO-DSL provides a programming abstraction similar to [cuTile](https://docs.nvid
 
 ## Installation
 
-Recommend using [Docker-ascend](https://gitcode.com/Ascend/mind-cluster). See [docker](./docker) directory to build all dependencies.
+See [docker/README.md](./docker/README.md) directory to build all dependencies for NPU.
 
 Then, install this lightweight DSL package itself:
 

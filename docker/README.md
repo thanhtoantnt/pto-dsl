@@ -1,4 +1,6 @@
-Usage:
+Recommend using [Ascend Docker Runtime](https://gitcode.com/Ascend/mind-cluster/tree/master/component/ascend-docker-runtime) for a reproducible env. Install it on top of normal Docker, using `Ascend-docker-runtime*.run` files in the [Release page](https://gitcode.com/Ascend/mind-cluster/releases).
+
+Then, build and run docker image:
 
 ```bash
 RELEASE_TAG=20260309
