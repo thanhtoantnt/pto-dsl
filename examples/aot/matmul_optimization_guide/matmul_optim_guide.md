@@ -23,9 +23,9 @@
 
 This guide is the NPU version of "step-by-step matmul optimization", a popular article style for NVIDIA GPUs (e.g. [for A100](https://siboehm.com/articles/22/CUDA-MMM) and [for H100](https://cudaforfun.substack.com/p/outperforming-cublas-on-h100-a-worklog)), but never written for our NPUs before.
 
-I intentionally keep the code samples **minimal, hackable, from-scratch, and without magical templates and wrappers**, to make them easier to follow than the more advanced "Matmul optimization practices" [in catlass](https://gitcode.com/cann/catlass/blob/master/docs/contents/advanced/matmul_template_summary.md) or [in AscendC](https://www.hiascend.com/document/detail/zh/canncommercial/850/opdevg/Ascendcopdevg/atlas_ascendc_best_practices_10_10006.html) (which hide optimization tricks behind templates and wrappers).
+We show step-by-step how to match the performance of a carefully optimized official library, using **only ~100 lines of Python DSL**. The target to compare is `torch.matmul`, which invokes [aclnnMatmul](https://www.hiascend.com/document/detail/zh/canncommercial/850/API/aolapi/context/ops-nn/aclnnMatmul.md) (our "cuBLAS" for NPU), internally implemented by [many thousands of lines of AscendC](https://gitcode.com/cann/ops-nn/tree/v8.5.0/matmul/mat_mul_v3/op_kernel).
 
-We will compare our custom kernel's performance to `torch.matmul`, which invokes [aclnnMatmul](https://www.hiascend.com/document/detail/zh/canncommercial/850/API/aolapi/context/ops-nn/aclnnMatmul.md) (our "cuBLAS" for NPU), internally implemented by [many thousands of lines of AscendC](https://gitcode.com/cann/ops-nn/tree/v8.5.0/matmul/mat_mul_v3/op_kernel). We show step-by-step how to match the performance of such a carefully optimized library, using **only ~100 lines of Python DSL**.
+I intentionally keep the code samples **minimal, hackable, from-scratch, and without magical templates and wrappers**, to highlight the few key optimizations. There are more comprehensive "Matmul optimizations lists" [in catlass](https://gitcode.com/cann/catlass/blob/master/docs/contents/advanced/matmul_template_summary.md) or [in AscendC](https://www.hiascend.com/document/detail/zh/canncommercial/850/opdevg/Ascendcopdevg/atlas_ascendc_best_practices_10_10006.html), which hide optimization tricks behind templates and wrappers. They are more suited for later, more advanced study.
 
 # Step 0: NPU programming crash course for CUDA/Triton programmers
 
@@ -125,10 +125,11 @@ Double buffering overlaps compute and data transfer:
 
 ![image info](./fig/pipeline_N1024_doublebuf.png)
 
-
 See full code in [./step2_doublebuffer.py](./step2_doublebuffer.py).
 
 Profile with:
+
+<details>
 
 ```bash
 msprof op simulator --aic-metrics=PipeUtilization \
@@ -137,7 +138,9 @@ msprof op simulator --aic-metrics=PipeUtilization \
     python ./run_matmul.py --variant step2-doublebuffer
 ```
 
-The only difference is that we allocate 2x local buffers for A and B on both `L1` and `L0`:
+</details>
+
+The only difference is that we allocate 2x local buffers for `A_tile` and `B_tile` on both `L1` and `L0`:
 
 ```python
 a_l1 = [pto.alloc_tile(tile_buf_a_l1), pto.alloc_tile(tile_buf_a_l1)]
@@ -201,6 +204,7 @@ Swizzling improves L2 cache reuse across multiple cores. We borrow this figure [
 To read this figure, assume 9 cores computing a subset `C` matrix in the first iteration (the yellow area, each number 0 ~ 8 marks the core id). In the naive "row-major ordering", the full matrix B (assume larger than L2 cache!) needs to be loaded from global memory; while in the "grouped ordering", the data traffic w.r.t. global memory is much less. 
 
 [step3_swizzle.py](./step3_swizzle.py) incorporates a 10-line swizzling function `swizzle_nz`, while keeping the rest of the code same as step2. [step3_swizzle_numpy_sim.py](./step3_swizzle_numpy_sim.py) explains the swizzle scheme intuitively. The swizzle algorithm is one of the algorithms [from catlass](https://gitcode.com/cann/catlass/blob/v1.4.0/include/catlass/gemm/block/block_swizzle.hpp), which also [has a nice explanation](https://gitcode.com/cann/catlass/blob/v1.4.0/docs/contents/advanced/swizzle_explanation.md)
+
 (for GPU experts -- such index remapping is analogous to [the "scheduler" in DeepGEMM](https://github.com/deepseek-ai/DeepGEMM/blob/v2.1.1/deep_gemm/include/deep_gemm/common/scheduler.cuh), which alters data assignment and loop order for each SM)
 
 With just this 10-line swizzle function, the FLOPs are much improved, reaching ~90% of `torch.matmul`!
