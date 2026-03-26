@@ -2,9 +2,9 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "${SCRIPT_DIR}/../../../.." && pwd)"
 ARTIFACT_DIR="${SCRIPT_DIR}/build_artifacts"
 LIB_PATH="${SCRIPT_DIR}/tpushpop_cv_lib.so"
+KERNEL_CPP_PATH="${KERNEL_CPP_PATH:-${SCRIPT_DIR}/tpushpop_cv.cpp}"
 EXTRA_BISHENG_FLAGS="${EXTRA_BISHENG_FLAGS:-}"
 
 if [[ "${TPUSHPOP_SANITY_ONLY:-}" =~ ^(1|true|TRUE|yes|YES|on|ON)$ ]]; then
@@ -39,7 +39,7 @@ bisheng \
     --npu-arch=dav-2201 -DMEMORY_BASE \
     -std=gnu++17 \
     ${EXTRA_BISHENG_FLAGS} \
-    -DKERNEL_CPP="\"${REPO_ROOT}/refs/tpushpop_cv.cpp\"" \
+    -DKERNEL_CPP="\"${KERNEL_CPP_PATH}\"" \
     "${SCRIPT_DIR}/caller.cpp" \
     -o "${LIB_PATH}"
 

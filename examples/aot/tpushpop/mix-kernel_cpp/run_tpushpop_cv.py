@@ -11,8 +11,9 @@ from ptodsl.test_util import get_test_device
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_LIB_PATH = os.path.join(THIS_DIR, "tpushpop_cv_lib.so")
 DEFAULT_COMPILE_SCRIPT = os.path.join(THIS_DIR, "compile.sh")
+DEFAULT_KERNEL_CPP = os.path.join(THIS_DIR, "tpushpop_cv.cpp")
 DEFAULT_FIFO_BYTES = 4 * 1024
-TOTAL_M = 16
+TOTAL_M = 128
 K = 32
 N = 32
 INPUT_DTYPE = torch.float16
@@ -27,10 +28,13 @@ def torch_to_ctypes(tensor: torch.Tensor) -> ctypes.c_void_p:
 
 
 def compile_example(compile_script: str) -> None:
+    env = os.environ.copy()
+    env["KERNEL_CPP_PATH"] = DEFAULT_KERNEL_CPP
     subprocess.run(
         ["bash", compile_script],
         check=True,
         cwd=THIS_DIR,
+        env=env,
     )
 
 
@@ -126,6 +130,10 @@ def main() -> None:
     )
     ref = reference_result(src_a, src_b, bias)
     out_cpu = out.cpu()
+    assert ref.device == out_cpu.device
+    torch.npu.synchronize()
+    torch.set_printoptions(precision=1, sci_mode=False, linewidth=250, threshold=5000)
+    print(ref-out_cpu)
 
     max_abs = float(torch.max(torch.abs(out_cpu - ref)).item())
     mean_abs = float(torch.mean(torch.abs(out_cpu - ref)).item())

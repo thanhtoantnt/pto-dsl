@@ -1,6 +1,6 @@
 # Cube To Vector `TPUSH`/`TPOP` Example
 
-This example wraps `refs/tpushpop_cv.cpp` into the same `compile.sh` + Python runner flow used by the AOT examples.
+This example keeps the kernel source in the same directory as the wrapper, using `./tpushpop_cv.cpp` with the same `compile.sh` + Python runner flow used by the AOT examples.
 
 The kernel does:
 
