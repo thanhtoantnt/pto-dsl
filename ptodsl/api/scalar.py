@@ -98,8 +98,10 @@ def __getattr__(name):
     raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
 
 
-def const(value):
-    return Value(arith.ConstantOp(IndexType.get(), value).result)
+def const(value, type=None):
+    if type is None:
+        type = IndexType.get()
+    return Value(arith.ConstantOp(type, value).result)
 
 
 def index_cast(value, index_type=IndexType):
