@@ -94,7 +94,9 @@ def module():
         pto.tpush_to_aic(send_tile, 0)
 
     @pto.func(entry=True)
-    def call_both(ffts_addr: "ffts_ty", gm_slot_buffer: "ptr_ty", gm_x: "ptr_ty", gm_y: "ptr_ty") -> None:
+    def call_both(
+        ffts_addr: "ffts_ty", gm_slot_buffer: "ptr_ty", gm_x: "ptr_ty", gm_y: "ptr_ty"
+    ) -> None:
         pto.set_ffts(ffts_addr)
         pto.call(cube_kernel, gm_slot_buffer, gm_y)
         pto.call(vector_kernel, gm_slot_buffer, gm_x)

@@ -53,7 +53,7 @@ def make_gm_slot_buffer(*, fifo_bytes: int, device: str) -> torch.Tensor:
 
 
 def make_io_tensors(*, device: str) -> tuple[torch.Tensor, torch.Tensor]:
-    x = torch.rand((M, N), dtype=torch.float32, device=device) -0.5
+    x = torch.rand((M, N), dtype=torch.float32, device=device) - 0.5
     y = torch.zeros((M, N), dtype=torch.float32, device=device)
     return x, y
 
@@ -62,7 +62,9 @@ def fifo_bytes_for_mode(mode: str) -> int:
     return DEFAULT_FIFO_BYTES_BOTH if mode in ("v2c", "bidi") else DEFAULT_FIFO_BYTES
 
 
-def run_kernel(lib: ctypes.CDLL, *, gm_slot_buffer: torch.Tensor, x: torch.Tensor, y: torch.Tensor) -> None:
+def run_kernel(
+    lib: ctypes.CDLL, *, gm_slot_buffer: torch.Tensor, x: torch.Tensor, y: torch.Tensor
+) -> None:
     stream_ptr = torch.npu.current_stream()._as_parameter_
     lib.call_kernel(
         1,
@@ -111,13 +113,15 @@ def main() -> None:
     y_ref = reference(args.mode, x)
     y_cpu = y.cpu()
 
-    print(y_ref-y_cpu)
+    print(y_ref - y_cpu)
     max_abs = float(torch.max(torch.abs(y_cpu - y_ref)).item())
     ok = bool(torch.allclose(y_cpu, y_ref, atol=ATOL, rtol=RTOL))
 
     print(f"shape=({M}, {N}) max_abs={max_abs:.6f}")
     if not ok:
-        raise SystemExit(f"Validation failed with atol={ATOL} rtol={RTOL}. max_abs={max_abs:.6f}")
+        raise SystemExit(
+            f"Validation failed with atol={ATOL} rtol={RTOL}. max_abs={max_abs:.6f}"
+        )
 
     print(f"Validation passed for mode={args.mode} using {DEFAULT_LIB_PATH}.")
 
