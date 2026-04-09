@@ -17,7 +17,7 @@ RUN pip install --no-cache-dir \
 
 # certain operations need latest isa header, not CANN 8.5.0 default
 # header on 2026/03/24
-ARG PTOISA_COMMIT=febd8a15a9dc03f87b6aa293c3ab66a67b6e80af
+ARG PTOISA_COMMIT=a8c3fbf42a2f4a0f609f64e138dda62deefddb8e
 WORKDIR /sources
 RUN git clone https://gitcode.com/cann/pto-isa.git \
     && cd pto-isa && git checkout $PTOISA_COMMIT
@@ -29,10 +29,10 @@ ARG CACHE_BURST=1
 
 # ARG ARCH=x86_64
 ARG ARCH=aarch64
-ARG RELEASE_REPO=huawei-csl/PTOAS
-ARG RELEASE_VER=20260327
-ARG RELEASE_TAG=${RELEASE_VER}
-ARG WHEEL_NAME=ptoas-0.18-cp311-none-manylinux_2_34_${ARCH}.whl
+ARG RELEASE_REPO=zhangstevenunity/PTOAS
+ARG RELEASE_VER=0.24
+ARG RELEASE_TAG=v${RELEASE_VER}
+ARG WHEEL_NAME=ptoas-${RELEASE_VER}-cp311-none-manylinux_2_34_${ARCH}.whl
 ARG CLI_TAR_NAME=ptoas-bin-${ARCH}.tar.gz
 
 WORKDIR /installers/
