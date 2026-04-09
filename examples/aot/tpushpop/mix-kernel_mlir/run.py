@@ -12,6 +12,7 @@ THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_LIB_PATH = os.path.join(THIS_DIR, "tpushpop_mlir_lib.so")
 DEFAULT_COMPILE_SCRIPT = os.path.join(THIS_DIR, "compile.sh")
 DEFAULT_FIFO_BYTES = 4 * 1024
+DEFAULT_FIFO_BYTES_BOTH = 8 * 1024
 M = 16
 N = 16
 ATOL = 1e-4
@@ -57,6 +58,10 @@ def make_io_tensors(*, device: str) -> tuple[torch.Tensor, torch.Tensor]:
     return x, y
 
 
+def fifo_bytes_for_mode(mode: str) -> int:
+    return DEFAULT_FIFO_BYTES_BOTH if mode in ("v2c", "bidi") else DEFAULT_FIFO_BYTES
+
+
 def run_kernel(lib: ctypes.CDLL, *, gm_slot_buffer: torch.Tensor, x: torch.Tensor, y: torch.Tensor) -> None:
     stream_ptr = torch.npu.current_stream()._as_parameter_
     lib.call_kernel(
@@ -93,7 +98,7 @@ def main() -> None:
 
     lib = load_lib(DEFAULT_LIB_PATH)
     gm_slot_buffer = make_gm_slot_buffer(
-        fifo_bytes=DEFAULT_FIFO_BYTES,
+        fifo_bytes=fifo_bytes_for_mode(args.mode),
         device=device,
     )
     torch.set_printoptions(precision=1, threshold=2000, linewidth=250, sci_mode=False)

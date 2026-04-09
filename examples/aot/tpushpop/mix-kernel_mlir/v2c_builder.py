@@ -5,6 +5,7 @@ const = s.const
 
 
 def meta_data():
+    ffts_ty = pto.ffts_type
     dtype = pto.float32
     ptr_ty = pto.PtrType(dtype)
     i32 = pto.int32
@@ -93,7 +94,8 @@ def module():
         pto.tpush_to_aic(send_tile, 0)
 
     @pto.func(entry=True)
-    def call_both(gm_slot_buffer: "ptr_ty", gm_x: "ptr_ty", gm_y: "ptr_ty") -> None:
+    def call_both(ffts_addr: "ffts_ty", gm_slot_buffer: "ptr_ty", gm_x: "ptr_ty", gm_y: "ptr_ty") -> None:
+        pto.set_ffts(ffts_addr)
         pto.call(cube_kernel, gm_slot_buffer, gm_y)
         pto.call(vector_kernel, gm_slot_buffer, gm_x)
 

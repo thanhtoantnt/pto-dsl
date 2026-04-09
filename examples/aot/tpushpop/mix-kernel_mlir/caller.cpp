@@ -4,6 +4,8 @@
 
 #include <cstdint>
 
+extern "C" int rtGetC2cCtrlAddr(uint64_t *ctrlAddr, uint32_t *ctrlLen);
+
 #include KERNEL_CPP
 
 extern "C" void call_kernel(
@@ -13,5 +15,14 @@ extern "C" void call_kernel(
     uint8_t *x,
     uint8_t *y)
 {
-    call_both<<<blockDim, nullptr, stream>>>((__gm__ float *)gmSlotBuffer, (__gm__ float *)x, (__gm__ float *)y);
+    void *fftsAddr = nullptr;
+    uint32_t fftsLen = 0;
+    (void)rtGetC2cCtrlAddr(reinterpret_cast<uint64_t *>(&fftsAddr), &fftsLen);
+    (void)fftsLen;
+
+    call_both<<<blockDim, nullptr, stream>>>(
+        (__gm__ int64_t *)fftsAddr,
+        (__gm__ float *)gmSlotBuffer,
+        (__gm__ float *)x,
+        (__gm__ float *)y);
 }
