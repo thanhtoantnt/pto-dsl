@@ -2,7 +2,7 @@ from ptodsl import jit, pto, tile
 from ptodsl import scalar as s
 import torch
 import torch_npu
-from ptodsl.npu_info import get_num_vec_cores, get_test_device
+from ptodsl.npu_info import get_num_cube_cores, get_test_device
 
 const = s.const
 
@@ -32,7 +32,7 @@ def meta_data():
     }
 
 
-@jit(meta_data=meta_data, block_dim=get_num_vec_cores())
+@jit(meta_data=meta_data, block_dim=get_num_cube_cores())
 def vec_add_1d_dynamic(
     arg0: "ptr_type",
     arg1: "ptr_type",
@@ -113,7 +113,7 @@ def test_add():
     device = get_test_device()
     torch.npu.set_device(device)
 
-    num_cores = get_num_vec_cores()
+    num_cores = get_num_cube_cores()
     tile_size = 1024
     # Keep shapes aligned to tile size, but vary tile counts so they are not
     # required to be multiples of `num_cores`.

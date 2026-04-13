@@ -2,9 +2,9 @@ from ptodsl import jit, pto, tile
 from ptodsl import scalar as s
 import torch
 import torch_npu
-from ptodsl.npu_info import get_num_vec_cores, get_test_device
+from ptodsl.npu_info import get_num_cube_cores, get_test_device
 
-_BLOCK_DIM = get_num_vec_cores()
+_BLOCK_DIM = get_num_cube_cores()
 _TILE_LEN = 1024
 
 const = s.const

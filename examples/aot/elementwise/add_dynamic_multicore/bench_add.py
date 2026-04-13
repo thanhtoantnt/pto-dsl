@@ -3,9 +3,9 @@ import ctypes
 import torch
 import torch_npu  # noqa: F401
 
-from ptodsl.npu_info import get_num_vec_cores, get_test_device
+from ptodsl.npu_info import get_num_cube_cores, get_test_device
 
-_DEFAULT_NUM_CORES = get_num_vec_cores()
+_DEFAULT_NUM_CORES = get_num_cube_cores()
 
 
 def torch_to_ctypes(tensor):

@@ -173,17 +173,20 @@ def build_topk(
         c_ncols = const(n_cols)
         c_topk = const(topk)
         n_rows_dyn = s.index_cast(argN)
-        bid = s.index_cast(pto.get_block_idx())
-        n_blocks = s.index_cast(pto.get_block_num())
-
-        # Distribute rows across blocks with ceil_div – works for any n_rows.
-        rows_per_core = s.ceil_div(n_rows_dyn, n_blocks)
-        row_start = bid * rows_per_core
-        row_end_raw = row_start + rows_per_core
-        need_clamp = row_end_raw > n_rows_dyn
-        rows_this_core = s.select(need_clamp, n_rows_dyn - row_start, rows_per_core)
 
         with pto.vector_section():
+            cid = pto.get_block_idx()
+            sub_bid = pto.get_subblock_idx()
+            sub_bnum = pto.get_subblock_num()
+            vid = s.index_cast(cid * sub_bnum + sub_bid)
+            n_blocks = s.index_cast(pto.get_block_num() * sub_bnum)
+
+            # Distribute rows across logical cores (cube_cores * sub_bnum) with ceil_div.
+            rows_per_core = s.ceil_div(n_rows_dyn, n_blocks)
+            row_start = vid * rows_per_core
+            row_end_raw = row_start + rows_per_core
+            need_clamp = row_end_raw > n_rows_dyn
+            rows_this_core = s.select(need_clamp, n_rows_dyn - row_start, rows_per_core)
             tv_src = pto.as_tensor(
                 tensor_src,
                 ptr=src_ptr,

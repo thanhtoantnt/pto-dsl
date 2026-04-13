@@ -4,7 +4,7 @@ import subprocess
 
 import pytest
 import torch
-from ptodsl.npu_info import get_num_vec_cores, get_test_device
+from ptodsl.npu_info import get_num_cube_cores, get_test_device
 
 torch.manual_seed(0)
 
@@ -30,7 +30,7 @@ CASES = [
 SHAPES = [(1, 64), (8, 64), (4, 128), (2, 256)]
 _SHAPE_PARAMS = [pytest.param(B, N, id=f"B{B}-N{N}") for B, N in SHAPES]
 
-NUM_BLOCKS = get_num_vec_cores()
+NUM_BLOCKS = get_num_cube_cores()
 TILE = 32
 
 

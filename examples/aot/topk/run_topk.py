@@ -24,11 +24,11 @@ import subprocess
 import torch
 import torch_npu
 
-from ptodsl.npu_info import get_num_vec_cores, get_test_device
+from ptodsl.npu_info import get_num_cube_cores, get_test_device
 from topk_builder import fn_name
 
 _DIR = os.path.dirname(os.path.abspath(__file__))
-_BLOCK_DIM = get_num_vec_cores()
+_BLOCK_DIM = get_num_cube_cores()
 
 # ── test configurations ───────────────────────────────────────────────────────
 # (n_rows, n_cols, topk, description)

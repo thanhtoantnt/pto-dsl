@@ -22,7 +22,17 @@ def get_num_cube_cores() -> int:
 
 
 def get_num_vec_cores() -> int:
-    """Return the number of vector cores on the NPU."""
+    """Return the number of vector cores on the NPU.
+
+    For all vector kernel tests: if bisheng is using mix-kernel compile mode,
+    i.e. ``--npu-arch=dav-2201`` (which is the case for the tests here), the
+    launch blockDim must be ``cube_cores`` (e.g. 24), not ``vec_cores`` (e.g.
+    48).  The use of ``get_subblock_idx()`` will expand 24 → 48 logical workers
+    automatically.
+
+    Vector-only compile mode uses ``--cce-aicore-arch=dav-c220-vec`` (see the
+    original C++ compile command); in that mode blockDim should be vec_cores.
+    """
     try:
         import torch
 

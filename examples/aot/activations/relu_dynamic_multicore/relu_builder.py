@@ -41,12 +41,15 @@ def build():
             c_tile_w = const(tile_w)
             total_elements = s.index_cast(argN)
 
-            num_blocks = s.index_cast(pto.get_block_num())
+            cid = pto.get_block_idx()
+            sub_bid = pto.get_subblock_idx()
+            sub_bnum = pto.get_subblock_num()
+            vid = s.index_cast(cid * sub_bnum + sub_bid)
+            num_blocks = s.index_cast(pto.get_block_num() * sub_bnum)
             num_el_per_core = s.ceil_div(total_elements, num_blocks)
 
             # Per-core range: [core_start, core_end)
-            bid = s.index_cast(pto.get_block_idx())
-            core_start = bid * num_el_per_core
+            core_start = vid * num_el_per_core
 
             # GM tensors shape N with stride 1.
             tv0 = pto.as_tensor(

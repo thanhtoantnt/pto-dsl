@@ -5,11 +5,11 @@ import subprocess
 import pytest
 import torch
 
-from ptodsl.npu_info import get_num_vec_cores, get_test_device
+from ptodsl.npu_info import get_num_cube_cores, get_test_device
 
 _DIR = os.path.dirname(os.path.abspath(__file__))
 _DEVICE = get_test_device()
-_BLOCK_DIM = get_num_vec_cores()
+_BLOCK_DIM = get_num_cube_cores()
 
 # ---------------------------------------------------------------------------
 # Dtype metadata

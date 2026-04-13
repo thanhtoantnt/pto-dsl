@@ -4,13 +4,13 @@ import subprocess
 
 import pytest
 import torch
-from ptodsl.npu_info import get_num_vec_cores, get_test_device
+from ptodsl.npu_info import get_num_cube_cores, get_test_device
 
 torch.manual_seed(0)
 
 _DIR = os.path.dirname(os.path.abspath(__file__))
 _DEVICE = get_test_device()
-_BLOCK_DIM = get_num_vec_cores()
+_BLOCK_DIM = get_num_cube_cores()
 
 # TMRGSORT single-list constraints (in terms of hw_block_len = BLOCK_LEN * TYPE_COEF):
 #   hw_block_len % 64 == 0

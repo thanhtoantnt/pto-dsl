@@ -2,9 +2,9 @@ from ptodsl import jit, pto, tile
 from ptodsl import scalar as s
 import torch
 import torch_npu
-from ptodsl.npu_info import get_num_vec_cores, get_test_device
+from ptodsl.npu_info import get_num_cube_cores, get_test_device
 
-_BLOCK_DIM = get_num_vec_cores()
+_BLOCK_DIM = get_num_cube_cores()
 _SUBBLOCK_NUM = 2  # 910B2 and 910B4 both have 2 subblocks per cube core
 _ROWS_PER_CORE = 32
 _TOTAL_ROWS = _BLOCK_DIM * _SUBBLOCK_NUM * _ROWS_PER_CORE
