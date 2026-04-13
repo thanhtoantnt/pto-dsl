@@ -8,6 +8,14 @@ DEFAULT_NUM_VEC_CORES = DEFAULT_NUM_CUBE_CORES * 2
 DEVICE_PREFIX = "npu:"
 
 
+# TODO: replace the torch-based device-property queries in get_num_cube_cores()
+# and get_num_vec_cores() with the ACL C++ API (aclrtGetDeviceCount /
+# aclrtGetDeviceName / aclrtDeviceGetInfo), the same way it is done in the
+# pto-kernels host utilities:
+#   https://github.com/huawei-csl/pto-kernels/blob/main/csrc/host/utils.h
+# This removes the torch_npu dependency for pure-build / non-training workflows.
+
+
 def get_num_cube_cores() -> int:
     """Return the number of cube (matrix) cores on the NPU."""
     try:
