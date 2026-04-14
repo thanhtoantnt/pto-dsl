@@ -25,34 +25,15 @@ _bisheng() {
 }
 
 compile_kernel() {
-    local SRC=$1
-    local DST=$2
-    local RMODE=${3:-}
+    local VARIANT=$1
+    local STEM="quant_${VARIANT}_dynamic"
 
-    local STEM="cvt_${SRC}_to_${DST}"
-    local RMODE_ARG=""
-    if [ -n "$RMODE" ]; then
-        STEM="${STEM}_${RMODE}"
-        RMODE_ARG="--rmode $RMODE"
-    fi
-
-    python "$SCRIPT_DIR/gen_ir.py" --src-dtype "$SRC" --dst-dtype "$DST" $RMODE_ARG \
-        > "$TMP/${STEM}.pto"
+    python "$SCRIPT_DIR/gen_ir.py" "$VARIANT" > "$TMP/${STEM}.pto"
     ptoas --enable-insert-sync "$TMP/${STEM}.pto" -o "$TMP/${STEM}.cpp"
-    python "$SCRIPT_DIR/caller.py" --src-dtype "$SRC" --dst-dtype "$DST" $RMODE_ARG \
-        > "$TMP/caller_${STEM}.cpp"
+    python "$SCRIPT_DIR/caller.py" "$VARIANT" > "$TMP/caller_${STEM}.cpp"
     _bisheng "$TMP/caller_${STEM}.cpp" -o "$SCRIPT_DIR/${STEM}_lib.so"
     echo "Built ${STEM}_lib.so"
 }
 
-# Three conversions covering float narrowing, float→int (with int8), and int→int
-# (matches _CONVERSIONS in test_cvt.py)
-
-# float narrowing — floor
-compile_kernel float32 float16 floor
-
-# float16 → small signed int — cast_rint
-compile_kernel float16 int8 cast_rint
-
-# int → int narrowing
-compile_kernel int32 int16
+compile_kernel sym
+compile_kernel asym
