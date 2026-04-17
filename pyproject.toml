@@ -12,7 +12,7 @@ authors = [
 ]
 
 [project.optional-dependencies]
-dev = ["matplotlib"]
+dev = ["matplotlib", "hypothesis>=6.0"]
 
 [tool.setuptools]
 packages = [
